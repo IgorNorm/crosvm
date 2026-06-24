@@ -34,7 +34,7 @@ jobs:
     - name: Build crosvm with WHPX
       run: |
         # Компілюємо релізну версію, примусово вмикаючи whpx (Hyper-V)
-        cargo build --release --features "whpx"
+        cargo build --release --all-features
 
     - name: Upload Binary Artifact
       uses: actions/upload-artifact@v4
