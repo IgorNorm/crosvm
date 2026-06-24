@@ -1,0 +1,43 @@
+name: Build crosvm for Windows (WHPX)
+
+on:
+  workflow_dispatch: # Дозволяє запускати збірку вручну кнопкою на GitHub
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive' # Затягуємо всі підмодулі, які потрібні crosvm
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+        targets: x86_64-pc-windows-msvc
+
+    - name: Setup Cache for Cargo
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Install NASM (required for some crypto/sys crates)
+      uses: ilammy/setup-nasm@v1
+
+    - name: Build crosvm with WHPX
+      run: |
+        # Компілюємо релізну версію, примусово вмикаючи whpx (Hyper-V)
+        cargo build --release --features "whpx"
+
+    - name: Upload Binary Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: crosvm-windows-whpx
+        path: target/release/crosvm.exe
