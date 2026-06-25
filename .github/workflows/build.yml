@@ -31,6 +31,10 @@ jobs:
     - name: Install NASM (required for some crypto/sys crates)
       uses: ilammy/setup-nasm@v1
 
+    - name: check metadata
+      run: |
+        cargo metadata --no-deps --format-version 1 | findstr /i "net"
+    
     - name: Build crosvm with WHPX
       run: |
         # Компілюємо релізну версію, примусово вмикаючи whpx (Hyper-V)
